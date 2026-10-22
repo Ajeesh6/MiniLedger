@@ -39,6 +39,8 @@ router.post("/", authenticateToken, async (req: AuthRequest, res) => {
             [req.userId, friendName.trim(), Number(amount), dueDate]
         );
 
+        console.log("Saved due date:", result.rows[0].due_date);
+
         res.status(201).json({
             success: true,
             message: "Loan added successfully",

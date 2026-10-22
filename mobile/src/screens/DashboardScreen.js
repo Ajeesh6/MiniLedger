@@ -6,6 +6,8 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 
 import SummaryCard from "../components/SummaryCard";
@@ -119,104 +121,99 @@ export default function DashboardScreen({ token }) {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <Text style={styles.title}>MiniLedger</Text>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.title}>MiniLedger</Text>
 
-      <Text style={styles.subtitle}>
-        Keep track of money you lend to friends.
-      </Text>
-
-      <View style={styles.summaryGrid}>
-        <SummaryCard
-          title="Total Lent"
-          amount={formatAmount(summary.total_lent)}
-        />
-
-        <SummaryCard
-          title="Total Repaid"
-          amount={formatAmount(summary.total_repaid)}
-        />
+        <Text style={styles.subtitle}>
+          Keep track of money you lend to friends.
+        </Text>
 
         <SummaryCard
-          title="Overdue"
-          amount={formatAmount(summary.total_overdue)}
-          isOverdue
+          totalLent={formatAmount(summary.total_lent)}
+          totalRepaid={formatAmount(summary.total_repaid)}
+          totalOverdue={formatAmount(summary.total_overdue)}
         />
-      </View>
 
-      <AddLoanForm
-        onSubmit={handleAddLoan}
-        loading={savingLoan}
-      />
 
-      <View style={styles.loanSection}>
 
-        <Text style={styles.sectionTitle}>Your Loans</Text>
+        <View style={styles.loanSection}>
 
-        {loading ? (
-          <Text style={styles.message}>Loading your loans...</Text>
-        ) : error ? (
-          <Text style={styles.error}>{error}</Text>
-        ) : loans.length === 0 ? (
-          <Text style={styles.message}>
-            No loans yet. Add your first loan to get started.
-          </Text>
-        ) : (
-          loans.map((loan) => (
+          <Text style={styles.sectionTitle}>Your Loans</Text>
 
-            <View
-              key={loan.id}
-              style={[
-                styles.loanCard,
-                isOverdue(loan) && styles.overdueLoanCard,
-              ]}
-            >
-              <Text style={styles.friendName}>
-                {loan.friend_name}
-              </Text>
+          {loading ? (
+            <Text style={styles.message}>Loading your loans...</Text>
+          ) : error ? (
+            <Text style={styles.error}>{error}</Text>
+          ) : loans.length === 0 ? (
+            <Text style={styles.message}>
+              No loans yet. Add your first loan to get started.
+            </Text>
+          ) : (
+            loans.map((loan) => (
 
-              <View style={styles.loanMiddleRow}>
+              <View
+                key={loan.id}
+                style={[
+                  styles.loanCard,
+                  isOverdue(loan) && styles.overdueLoanCard,
+                ]}
+              >
+                <Text style={styles.friendName}>
+                  {loan.friend_name}
+                </Text>
+
+                <View style={styles.loanMiddleRow}>
+                  <Text
+                    style={[
+                      styles.loanAmount,
+                      isOverdue(loan) && styles.overdueText,
+                    ]}
+                  >
+                    {formatAmount(loan.amount)}
+                  </Text>
+
+                  {loan.is_repaid ? (
+                    <Text style={styles.repaidText}>✓ Repaid</Text>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.repayButton}
+                      onPress={() => handleMarkRepaid(loan.id)}
+                    >
+                      <Text style={styles.repayButtonText}>
+                        Mark as Repaid
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
                 <Text
                   style={[
-                    styles.loanAmount,
+                    styles.dueDate,
                     isOverdue(loan) && styles.overdueText,
                   ]}
                 >
-                  {formatAmount(loan.amount)}
+                  Due: {String(loan.due_date).slice(0, 10)}
+                  {isOverdue(loan) ? " · Overdue" : ""}
                 </Text>
-
-                {loan.is_repaid ? (
-                  <Text style={styles.repaidText}>✓ Repaid</Text>
-                ) : (
-                  <TouchableOpacity
-                    style={styles.repayButton}
-                    onPress={() => handleMarkRepaid(loan.id)}
-                  >
-                    <Text style={styles.repayButtonText}>
-                      Mark as Repaid
-                    </Text>
-                  </TouchableOpacity>
-                )}
               </View>
 
-              <Text
-                style={[
-                  styles.dueDate,
-                  isOverdue(loan) && styles.overdueText,
-                ]}
-              >
-                Due: {String(loan.due_date).slice(0, 10)}
-                {isOverdue(loan) ? " · Overdue" : ""}
-              </Text>
-            </View>
-
-          ))
-        )}
-      </View>
-    </ScrollView>
+            ))
+          )}
+        </View>
+                <AddLoanForm
+          onSubmit={handleAddLoan}
+          loading={savingLoan}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -242,11 +239,6 @@ const styles = StyleSheet.create({
     color: "#64748B",
     marginTop: 8,
     marginBottom: 28,
-  },
-  summaryGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
   },
   loanSection: {
     backgroundColor: "#FFFFFF",

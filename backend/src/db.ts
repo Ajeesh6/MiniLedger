@@ -1,7 +1,10 @@
-import { Pool } from "pg";
+import { Pool, types } from "pg";
 import dotenv from "dotenv";
 
 dotenv.config();
+
+// Keep PostgreSQL DATE values as YYYY-MM-DD strings.
+types.setTypeParser(1082, (value) => value);
 
 export const pool = new Pool({
   host: process.env.DB_HOST,

@@ -69,9 +69,9 @@ export default function LoginScreen({ onLogin }) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
+  style={styles.container}
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+>
       <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
 
       <View style={styles.content}>
@@ -171,14 +171,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8FAFC",
   },
   content: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    width: "100%",
-    maxWidth: 520,
-    alignSelf: "center",
-  },
+  flex: 1,
+  justifyContent: "center",
+  paddingHorizontal: 24,
+  paddingTop: 12,
+  paddingBottom: 12,
+  width: "100%",
+  maxWidth: 520,
+  alignSelf: "center",
+},
   logo: {
     width: 58,
     height: 58,
