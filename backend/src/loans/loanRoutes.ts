@@ -13,9 +13,14 @@ router.post("/", authenticateToken, async (req: AuthRequest, res) => {
     const { friendName, amount, dueDate } = req.body;
 
     // Validate the input
+    const name = typeof friendName === "string" ? friendName.trim() : "";
+
+    const validName =
+        /[\p{L}]/u.test(name) &&
+        /^[\p{L}\p{M}]+(?:[ .'-][\p{L}\p{M}]+)*$/u.test(name);
+
     if (
-        typeof friendName !== "string" ||
-        !friendName.trim() ||
+        !validName ||
         amount === undefined ||
         !Number.isFinite(Number(amount)) ||
         Number(amount) <= 0 ||
